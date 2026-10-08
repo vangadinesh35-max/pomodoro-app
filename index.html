@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f5ef" />
+  <title>Still — Focus Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { color-scheme: light; --ink:#26342c; --muted:#879087; --paper:#f7f5ef; --green:#49745d; --green-dark:#355b47; --line:#e9e7df; --white:#fffefa; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--paper); color:var(--ink); font-family:'DM Sans',sans-serif; display:grid; place-items:center; padding:28px; }
+    button { font:inherit; }
+    .app { width:min(100%, 1050px); min-height:min(720px, calc(100vh - 56px)); background:var(--white); border:1px solid #eeece5; border-radius:28px; box-shadow:0 24px 80px rgba(38,52,44,.07); display:flex; flex-direction:column; overflow:hidden; }
+    header { height:82px; padding:0 48px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:11px; font-family:Manrope,sans-serif; font-size:18px; font-weight:800; letter-spacing:-.7px; }
+    .brand-mark { width:30px; height:30px; border-radius:10px; background:var(--green); display:grid; place-items:center; color:white; }
+    .brand-mark svg { width:17px; }
+    .header-note { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+    .status-dot { width:7px; height:7px; border-radius:50%; background:#8eaa91; }
+    main { flex:1; display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:56px 8%; gap:7%; }
+    .intro { max-width:360px; }
+    .eyebrow { display:flex; align-items:center; gap:9px; margin:0 0 21px; color:var(--green); text-transform:uppercase; letter-spacing:.15em; font-size:11px; font-weight:700; }
+    .eyebrow::before { content:''; width:22px; height:1px; background:#9bb49e; }
+    h1 { font-family:Manrope,sans-serif; font-size:clamp(38px,5vw,57px); line-height:1.09; letter-spacing:-2.8px; margin:0; font-weight:600; }
+    h1 span { color:var(--green); }
+    .description { margin:20px 0 0; max-width:310px; color:#818980; line-height:1.75; font-size:15px; }
+    .session-label { display:flex; align-items:center; gap:9px; margin-top:48px; color:#626e65; font-size:13px; font-weight:600; }
+    .leaf { color:var(--green); font-size:15px; }
+    .timer-panel { display:flex; flex-direction:column; align-items:center; }
+    .clock { position:relative; width:min(100%, 330px); aspect-ratio:1; display:grid; place-items:center; }
+    .clock svg { position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
+    .track { fill:none; stroke:#eef0e9; stroke-width:4; }
+    .progress { fill:none; stroke:var(--green); stroke-width:4; stroke-linecap:round; transition:stroke-dashoffset .35s ease; }
+    .clock-center { display:flex; flex-direction:column; align-items:center; margin-top:-2px; }
+    .time { font-family:Manrope,sans-serif; font-size:clamp(63px,8vw,83px); font-weight:500; letter-spacing:-5px; font-variant-numeric:tabular-nums; line-height:1; }
+    .time-caption { margin-top:13px; color:#9aa097; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+    .controls { display:flex; align-items:center; gap:18px; margin-top:30px; }
+    .primary { min-width:152px; height:52px; border:0; border-radius:14px; background:var(--green); color:white; display:flex; align-items:center; justify-content:center; gap:10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 7px 18px rgba(73,116,93,.19); transition:background .2s, transform .2s, box-shadow .2s; }
+    .primary:hover { background:var(--green-dark); transform:translateY(-1px); box-shadow:0 10px 22px rgba(73,116,93,.22); }
+    .primary:active { transform:translateY(0); }
+    .primary svg { width:15px; height:15px; }
+    .reset { width:46px; height:46px; border:1px solid var(--line); border-radius:14px; background:transparent; color:#818980; display:grid; place-items:center; cursor:pointer; transition:background .2s,color .2s; }
+    .reset:hover { background:#f5f4ef; color:var(--ink); }
+    .reset svg { width:17px; height:17px; }
+    .hint { margin:21px 0 0; color:#a2a79f; font-size:12px; }
+    footer { min-height:65px; padding:0 48px; border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; color:#9aa097; font-size:11px; }
+    .footer-left { display:flex; align-items:center; gap:8px; }
+    .footer-left svg { width:14px; color:#8da18e; }
+    .shortcut { padding:4px 7px; border:1px solid var(--line); border-radius:6px; color:#858c83; font-size:10px; }
+    button:focus-visible { outline:3px solid #a9c3ac; outline-offset:3px; }
+    @media (max-width:700px) {
+      body { padding:12px; }
+      .app { min-height:calc(100vh - 24px); border-radius:21px; }
+      header { height:68px; padding:0 23px; }
+      main { grid-template-columns:1fr; gap:36px; padding:42px 24px 36px; }
+      .intro { text-align:center; margin:0 auto; }
+      .eyebrow { justify-content:center; margin-bottom:15px; }
+      h1 { font-size:42px; }
+      .description { margin:14px auto 0; font-size:14px; }
+      .session-label { justify-content:center; margin-top:20px; }
+      .clock { width:min(76vw, 285px); }
+      .time { font-size:72px; }
+      .controls { margin-top:20px; }
+      footer { padding:0 22px; min-height:58px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v9l6 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg></span>still</div>
+      <div class="header-note"><span class="status-dot"></span><span id="headerStatus">Ready when you are</span></div>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="headline">
+        <p class="eyebrow">A little space to focus</p>
+        <h1 id="headline">Make room<br>for <span>deep work.</span></h1>
+        <p class="description">One thing at a time. Settle in, find your rhythm, and let the rest wait.</p>
+        <div class="session-label"><span class="leaf" aria-hidden="true">✳</span><span>25 minute focus session</span></div>
+      </section>
+      <section class="timer-panel" aria-label="Focus session timer">
+        <div class="clock" role="timer" aria-live="off" aria-label="25 minutes remaining">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="46"/><circle class="progress" id="progress" cx="50" cy="50" r="46"/></svg>
+          <div class="clock-center"><div class="time" id="time">25:00</div><div class="time-caption" id="caption">Ready to begin</div></div>
+        </div>
+        <div class="controls">
+          <button class="primary" id="toggle" type="button" aria-label="Start focus session"><svg id="playIcon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.8c0-.7.8-1.1 1.4-.7l8 5.2a.8.8 0 0 1 0 1.4l-8 5.2c-.6.4-1.4 0-1.4-.7V2.8Z"/></svg><span id="toggleText">Start focusing</span></button>
+          <button class="reset" id="reset" type="button" aria-label="Reset timer" title="Reset timer"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.2 9a6.8 6.8 0 1 1 .5 4.2M3 4.8v4.4h4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+        <p class="hint" id="hint">A fresh start is one tap away.</p>
+      </section>
+    </main>
+    <footer><div class="footer-left"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 17s-6-3.6-6-8a3.5 3.5 0 0 1 6-2.5A3.5 3.5 0 0 1 16 9c0 4.4-6 8-6 8Z" stroke="currentColor" stroke-width="1.5"/><path d="M10 6.5V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Small steps. Steady progress.</span></div><span>YOUR TIME, YOUR PACE</span></footer>
+  </div>
+  <script>
+    (() => {
+      const duration = 25 * 60;
+      const circumference = 2 * Math.PI * 46;
+      const timeEl = document.getElementById('time');
+      const caption = document.getElementById('caption');
+      const headerStatus = document.getElementById('headerStatus');
+      const progress = document.getElementById('progress');
+      const toggle = document.getElementById('toggle');
+      const toggleText = document.getElementById('toggleText');
+      const playIcon = document.getElementById('playIcon');
+      const hint = document.getElementById('hint');
+      let remaining = duration;
+      let endAt = 0;
+      let interval = null;
+      let state = 'ready';
+      progress.style.strokeDasharray = circumference;
+      const format = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2,'0')}:${String(seconds % 60).padStart(2,'0')}`;
+      function render() {
+        timeEl.textContent = format(remaining);
+        progress.style.strokeDashoffset = circumference * (1 - remaining / duration);
+        document.querySelector('.clock').setAttribute('aria-label', `${Math.ceil(remaining / 60)} minutes remaining`);
+        if (state === 'ready') { caption.textContent = 'Ready to begin'; headerStatus.textContent = 'Ready when you are'; toggleText.textContent = 'Start focusing'; toggle.setAttribute('aria-label','Start focus session'); playIcon.innerHTML = '<path d="M4 2.8c0-.7.8-1.1 1.4-.7l8 5.2a.8.8 0 0 1 0 1.4l-8 5.2c-.6.4-1.4 0-1.4-.7V2.8Z"/>'; hint.textContent = 'A fresh start is one tap away.'; }
+        else if (state === 'running') { caption.textContent = 'Stay in your flow'; headerStatus.textContent = 'Focus in progress'; toggleText.textContent = 'Take a pause'; toggle.setAttribute('aria-label','Pause focus session'); playIcon.innerHTML = '<rect x="3.5" y="2.5" width="3.5" height="11" rx="1"/><rect x="9" y="2.5" width="3.5" height="11" rx="1"/>'; hint.textContent = 'You’re doing great. Keep going.'; }
+        else if (state === 'paused') { caption.textContent = 'Paused'; headerStatus.textContent = 'Taking a breather'; toggleText.textContent = 'Keep going'; toggle.setAttribute('aria-label','Resume focus session'); playIcon.innerHTML = '<path d="M4 2.8c0-.7.8-1.1 1.4-.7l8 5.2a.8.8 0 0 1 0 1.4l-8 5.2c-.6.4-1.4 0-1.4-.7V2.8Z"/>'; hint.textContent = 'Pick up whenever you’re ready.'; }
+        else { caption.textContent = 'Well done'; headerStatus.textContent = 'Session complete'; toggleText.textContent = 'Start again'; toggle.setAttribute('aria-label','Start a new focus session'); playIcon.innerHTML = '<path d="M4 2.8c0-.7.8-1.1 1.4-.7l8 5.2a.8.8 0 0 1 0 1.4l-8 5.2c-.6.4-1.4 0-1.4-.7V2.8Z"/>'; hint.textContent = 'You made space for what matters.'; }
+        document.title = state === 'running' ? `${format(remaining)} — Still` : 'Still — Focus Timer';
+      }
+      function stop() { if (interval) clearInterval(interval); interval = null; }
+      function tick() { remaining = Math.max(0, Math.ceil((endAt - Date.now()) / 1000)); if (remaining === 0) { stop(); state = 'complete'; } render(); }
+      function start() { if (state === 'complete') remaining = duration; state = 'running'; endAt = Date.now() + remaining * 1000; stop(); interval = setInterval(tick, 250); render(); }
+      toggle.addEventListener('click', () => { if (state === 'running') { tick(); if (state === 'complete') return; stop(); state = 'paused'; } else start(); render(); });
+      document.getElementById('reset').addEventListener('click', () => { stop(); remaining = duration; state = 'ready'; render(); });
+      document.addEventListener('visibilitychange', () => { if (!document.hidden && state === 'running') tick(); });
+      document.addEventListener('keydown', (event) => { if (event.code === 'Space' && !['BUTTON','INPUT'].includes(document.activeElement.tagName)) { event.preventDefault(); toggle.click(); } if (event.key.toLowerCase() === 'r' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) document.getElementById('reset').click(); });
+      render();
+    })();
+  </script>
+</body>
+</html>
